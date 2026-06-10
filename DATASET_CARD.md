@@ -27,7 +27,7 @@ configs:
 # Synthetic Multi-Turn Function-Calling Conversations
 
 Synthetic, multi-turn **function-calling (tool-use)** conversations for fine-tuning and evaluating LLMs,
-generated and validated with [`synthfc`](https://github.com/YOUR_USERNAME/synthfc).
+generated and validated with [`synthfc`](https://github.com/pierpierpy/function-calling-synthetic-generation).
 
 A strong teacher LLM produces each conversation from controlled, sampled parameters, so the dataset is
 diverse along many axes (call type, languages, length, user style, tool count, edge cases, domain) and every
@@ -76,7 +76,7 @@ with `synthfc build`.
 4. **Postprocess** to repair structural issues (merge consecutive user turns, remove reflection turns).
 5. **Export** into the training format and split into train/test.
 
-Full pipeline and code: <https://github.com/YOUR_USERNAME/synthfc>.
+Full pipeline and code: <https://github.com/pierpierpy/function-calling-synthetic-generation>.
 
 ## Languages
 
@@ -103,6 +103,6 @@ restrictions on training with model outputs.
   title  = {synthfc: Synthetic Function-Calling Dataset Generator},
   author = {Di Pasquale, Piergiorgio},
   year   = {2026},
-  url    = {https://github.com/YOUR_USERNAME/synthfc}
+  url    = {https://github.com/pierpierpy/function-calling-synthetic-generation}
 }
 ```

@@ -14,6 +14,10 @@ sample params  ──▶  teacher LLM  ──▶  validate  ──▶  postproce
  (distributions)    (generation)      (rules)        (repair)         (train/test)   (child convos)
 ```
 
+📦 **Example dataset produced with this pipeline:**
+[`pierjoe/function-calling-synthetic-2000`](https://huggingface.co/datasets/pierjoe/function-calling-synthetic-2000)
+on the Hugging Face Hub (generated with `Qwen/Qwen3.6-35B-A3B` as the teacher).
+
 ---
 
 ## Why
