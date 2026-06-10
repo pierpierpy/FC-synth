@@ -109,6 +109,14 @@ def build(
         0.1, "--test-split", "-t", help="Fraction of examples held out for the test split."
     ),
     seed: int = typer.Option(42, "--seed", "-s", help="Random seed for split/expand."),
+    enriched: bool = typer.Option(
+        False, "--enriched", help="Also write the enriched, self-describing format "
+        "(sampler params + model + tools-separate + context/answer split)."
+    ),
+    model: Optional[str] = typer.Option(
+        None, "--model", help="Teacher model name to stamp on enriched rows "
+        "(default: read from the batch metadata)."
+    ),
     config: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to a YAML config file."),
 ):
     """Build a training-ready dataset: validate → postprocess → export → expand."""
@@ -152,6 +160,18 @@ def build(
         )
     else:
         typer.secho("[5/5] Expand skipped", fg=typer.colors.CYAN)
+
+    if enriched:
+        typer.secho("[+] Enriched export", fg=typer.colors.CYAN)
+        from .pipeline import enriched_export
+        enriched_export.export_enriched(
+            batch_name=batch,
+            model=model,
+            use_postprocessed=True,
+            filter_failed=True,
+            test_split=test_split,
+            seed=seed,
+        )
 
     # Drop checkpoints once we have a finished dataset.
     for ckpt in batch_dir.glob("checkpoint_*.jsonl"):
