@@ -1,0 +1,11 @@
+{
+  "source_batch": "qwen36_demo10",
+  "model": "Qwen/Qwen3.6-35B-A3B",
+  "format": "enriched",
+  "total": 8,
+  "train": 8,
+  "test": 0,
+  "test_split": 0.1,
+  "seed": 42,
+  "answer_split": "last_assistant_turn"
+}

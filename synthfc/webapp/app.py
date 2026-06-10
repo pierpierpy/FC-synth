@@ -61,13 +61,13 @@ def parse_jsonl(filepath: Path) -> dict:
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     """Main page."""
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request, "index.html")
 
 
 @app.get("/datasets", response_class=HTMLResponse)
 async def datasets_page(request: Request):
     """Datasets list page."""
-    return templates.TemplateResponse("datasets.html", {"request": request})
+    return templates.TemplateResponse(request, "datasets.html")
 
 
 @app.get("/api/datasets")
@@ -78,9 +78,9 @@ async def list_datasets():
     datasets = []
     
     for batch_dir in sorted(DATA_DIR.iterdir(), key=lambda x: x.stat().st_mtime, reverse=True):
-        if not batch_dir.is_dir() or not batch_dir.name.startswith("batch_"):
+        if not batch_dir.is_dir() or not (batch_dir / "examples.jsonl").exists():
             continue
-            
+
         examples_file = batch_dir / "examples.jsonl"
         postprocessed_file = batch_dir / "examples_postprocessed.jsonl"
         validation_file = batch_dir / "validation_results.json"
@@ -181,9 +181,10 @@ async def list_files():
 
     file_info = []
 
-    # 1. Look for batch directories (new layout)
+    # 1. Look for batch directories (any dir containing an examples.jsonl,
+    #    not only those prefixed "batch_").
     for batch_dir in sorted(DATA_DIR.iterdir(), key=lambda x: x.stat().st_mtime, reverse=True):
-        if batch_dir.is_dir() and batch_dir.name.startswith("batch_"):
+        if batch_dir.is_dir() and (batch_dir / "examples.jsonl").exists():
             examples_file = batch_dir / "examples.jsonl"
             summary_file = batch_dir / "summary.json"
 
@@ -523,7 +524,7 @@ async def run_postprocess(batch_name: str):
 @app.get("/stats", response_class=HTMLResponse)
 async def stats_page(request: Request):
     """Dataset statistics page."""
-    return templates.TemplateResponse("stats.html", {"request": request})
+    return templates.TemplateResponse(request, "stats.html")
 
 
 @app.get("/api/dataset_stats/{batch_name}")

@@ -1,0 +1,863 @@
+{
+  "summary": {
+    "total_examples": 10,
+    "average_score": 73.1,
+    "total_pass": 64,
+    "total_fail": 0,
+    "total_warn": 21
+  },
+  "by_parameter": {
+    "call_type": {
+      "pass": 6,
+      "fail": 0,
+      "warn": 3,
+      "skip": 1
+    },
+    "num_tool_calls": {
+      "pass": 7,
+      "fail": 0,
+      "warn": 3,
+      "skip": 0
+    },
+    "conversation_length": {
+      "pass": 8,
+      "fail": 0,
+      "warn": 2,
+      "skip": 0
+    },
+    "system_prompt_type": {
+      "pass": 7,
+      "fail": 0,
+      "warn": 3,
+      "skip": 0
+    },
+    "conversation_language": {
+      "pass": 7,
+      "fail": 0,
+      "warn": 3,
+      "skip": 0
+    },
+    "first_tool_position": {
+      "pass": 6,
+      "fail": 0,
+      "warn": 4,
+      "skip": 0
+    },
+    "user_style": {
+      "pass": 5,
+      "fail": 0,
+      "warn": 3,
+      "skip": 2
+    },
+    "consecutive_roles": {
+      "pass": 8,
+      "fail": 0,
+      "warn": 0,
+      "skip": 2
+    },
+    "parallel_tool_calls": {
+      "pass": 10,
+      "fail": 0,
+      "warn": 0,
+      "skip": 0
+    },
+    "out_of_scope_requests": {
+      "pass": 0,
+      "fail": 0,
+      "warn": 0,
+      "skip": 10
+    }
+  },
+  "validations": [
+    {
+      "example_id": "unknown",
+      "score": 0.5,
+      "passed": 3,
+      "failed": 0,
+      "warnings": 3,
+      "results": [
+        {
+          "param": "call_type",
+          "expected": "None",
+          "observed": "unknown",
+          "status": "⏭️",
+          "message": "Unknown type"
+        },
+        {
+          "param": "num_tool_calls",
+          "expected": "0",
+          "observed": "0",
+          "status": "✅",
+          "message": "No tool call as required"
+        },
+        {
+          "param": "conversation_length",
+          "expected": "medium (4-14)",
+          "observed": "0 messages",
+          "status": "⚠️",
+          "message": "Acceptable length (tolerance ±4)"
+        },
+        {
+          "param": "system_prompt_type",
+          "expected": "standard",
+          "observed": "absent",
+          "status": "⚠️",
+          "message": "System prompt missing"
+        },
+        {
+          "param": "conversation_language",
+          "expected": "it",
+          "observed": "en (0 IT markers)",
+          "status": "⚠️",
+          "message": "Detected language: en (heuristic check)"
+        },
+        {
+          "param": "first_tool_position",
+          "expected": "no tool call",
+          "observed": "no tool call",
+          "status": "✅",
+          "message": "No tool call as required"
+        },
+        {
+          "param": "user_style",
+          "expected": "informal",
+          "observed": "no user messages",
+          "status": "⏭️",
+          "message": "No user message to analyze"
+        },
+        {
+          "param": "consecutive_roles",
+          "expected": "no problematic consecutive roles",
+          "observed": "conversation too short",
+          "status": "⏭️",
+          "message": "Conversation too short to validate"
+        },
+        {
+          "param": "parallel_tool_calls",
+          "expected": "1 tool_call per message",
+          "observed": "OK (no parallel)",
+          "status": "✅",
+          "message": "No parallel tool call"
+        },
+        {
+          "param": "out_of_scope_requests",
+          "expected": "0 (none)",
+          "observed": "N/A",
+          "status": "⏭️",
+          "message": "No out-of-scope required"
+        }
+      ]
+    },
+    {
+      "example_id": "44fa15e3",
+      "score": 1.0,
+      "passed": 9,
+      "failed": 0,
+      "warnings": 0,
+      "results": [
+        {
+          "param": "call_type",
+          "expected": "clarification/resolved (>0 tool calls)",
+          "observed": "1 tool calls",
+          "status": "✅",
+          "message": "Tool call after clarification as required"
+        },
+        {
+          "param": "num_tool_calls",
+          "expected": "1",
+          "observed": "1",
+          "status": "✅",
+          "message": "Exact number of tool calls"
+        },
+        {
+          "param": "conversation_length",
+          "expected": "long (8-22)",
+          "observed": "12 messages",
+          "status": "✅",
+          "message": "Length correct"
+        },
+        {
+          "param": "system_prompt_type",
+          "expected": "standard (15-80 words)",
+          "observed": "56 words",
+          "status": "✅",
+          "message": "System prompt of the correct length"
+        },
+        {
+          "param": "conversation_language",
+          "expected": "it",
+          "observed": "it (8 IT markers)",
+          "status": "✅",
+          "message": "Correct language: it"
+        },
+        {
+          "param": "first_tool_position",
+          "expected": "position ~5",
+          "observed": "position 3",
+          "status": "✅",
+          "message": "Position OK (diff=2, tolerance ±3)"
+        },
+        {
+          "param": "user_style",
+          "expected": "informal",
+          "observed": "informal",
+          "status": "✅",
+          "message": "User style correct"
+        },
+        {
+          "param": "consecutive_roles",
+          "expected": "no problematic consecutive roles",
+          "observed": "OK",
+          "status": "✅",
+          "message": "Message structure correct"
+        },
+        {
+          "param": "parallel_tool_calls",
+          "expected": "1 tool_call per message",
+          "observed": "OK (no parallel)",
+          "status": "✅",
+          "message": "No parallel tool call"
+        },
+        {
+          "param": "out_of_scope_requests",
+          "expected": "0 (none)",
+          "observed": "N/A",
+          "status": "⏭️",
+          "message": "No out-of-scope required"
+        }
+      ]
+    },
+    {
+      "example_id": "121d67e2",
+      "score": 0.8888888888888888,
+      "passed": 8,
+      "failed": 0,
+      "warnings": 1,
+      "results": [
+        {
+          "param": "call_type",
+          "expected": "clarification/resolved (>0 tool calls)",
+          "observed": "1 tool calls",
+          "status": "✅",
+          "message": "Tool call after clarification as required"
+        },
+        {
+          "param": "num_tool_calls",
+          "expected": "1",
+          "observed": "1",
+          "status": "✅",
+          "message": "Exact number of tool calls"
+        },
+        {
+          "param": "conversation_length",
+          "expected": "short (2-6)",
+          "observed": "6 messages",
+          "status": "✅",
+          "message": "Length correct"
+        },
+        {
+          "param": "system_prompt_type",
+          "expected": "minimal (1-20 words)",
+          "observed": "11 words",
+          "status": "✅",
+          "message": "System prompt of the correct length"
+        },
+        {
+          "param": "conversation_language",
+          "expected": "it",
+          "observed": "it (5 IT markers)",
+          "status": "✅",
+          "message": "Correct language: it"
+        },
+        {
+          "param": "first_tool_position",
+          "expected": "position ~7",
+          "observed": "position 3",
+          "status": "⚠️",
+          "message": "Acceptable position (diff=4)"
+        },
+        {
+          "param": "user_style",
+          "expected": "informal",
+          "observed": "informal",
+          "status": "✅",
+          "message": "User style correct"
+        },
+        {
+          "param": "consecutive_roles",
+          "expected": "no problematic consecutive roles",
+          "observed": "OK",
+          "status": "✅",
+          "message": "Message structure correct"
+        },
+        {
+          "param": "parallel_tool_calls",
+          "expected": "1 tool_call per message",
+          "observed": "OK (no parallel)",
+          "status": "✅",
+          "message": "No parallel tool call"
+        },
+        {
+          "param": "out_of_scope_requests",
+          "expected": "0 (none)",
+          "observed": "N/A",
+          "status": "⏭️",
+          "message": "No out-of-scope required"
+        }
+      ]
+    },
+    {
+      "example_id": "eb006602",
+      "score": 0.8888888888888888,
+      "passed": 8,
+      "failed": 0,
+      "warnings": 1,
+      "results": [
+        {
+          "param": "call_type",
+          "expected": "negative (0 tool calls)",
+          "observed": "0 tool calls",
+          "status": "✅",
+          "message": "No tool call as required"
+        },
+        {
+          "param": "num_tool_calls",
+          "expected": "0",
+          "observed": "0",
+          "status": "✅",
+          "message": "No tool call as required"
+        },
+        {
+          "param": "conversation_length",
+          "expected": "medium (4-14)",
+          "observed": "8 messages",
+          "status": "✅",
+          "message": "Length correct"
+        },
+        {
+          "param": "system_prompt_type",
+          "expected": "standard (15-80 words)",
+          "observed": "51 words",
+          "status": "✅",
+          "message": "System prompt of the correct length"
+        },
+        {
+          "param": "conversation_language",
+          "expected": "it",
+          "observed": "it (3 IT markers)",
+          "status": "✅",
+          "message": "Correct language: it"
+        },
+        {
+          "param": "first_tool_position",
+          "expected": "no tool call",
+          "observed": "no tool call",
+          "status": "✅",
+          "message": "No tool call as required"
+        },
+        {
+          "param": "user_style",
+          "expected": "vague",
+          "observed": "informal (but vague present)",
+          "status": "⚠️",
+          "message": "Style vague present but not dominant"
+        },
+        {
+          "param": "consecutive_roles",
+          "expected": "no problematic consecutive roles",
+          "observed": "OK",
+          "status": "✅",
+          "message": "Message structure correct"
+        },
+        {
+          "param": "parallel_tool_calls",
+          "expected": "1 tool_call per message",
+          "observed": "OK (no parallel)",
+          "status": "✅",
+          "message": "No parallel tool call"
+        },
+        {
+          "param": "out_of_scope_requests",
+          "expected": "0 (none)",
+          "observed": "N/A",
+          "status": "⏭️",
+          "message": "No out-of-scope required"
+        }
+      ]
+    },
+    {
+      "example_id": "89e4e5e2",
+      "score": 0.4444444444444444,
+      "passed": 4,
+      "failed": 0,
+      "warnings": 5,
+      "results": [
+        {
+          "param": "call_type",
+          "expected": "negative (0 tool calls)",
+          "observed": "3 tool calls",
+          "status": "⚠️",
+          "message": "Tool calls present in a negative conversation"
+        },
+        {
+          "param": "num_tool_calls",
+          "expected": "0",
+          "observed": "3",
+          "status": "⚠️",
+          "message": "3 tool calls instead of 0"
+        },
+        {
+          "param": "conversation_length",
+          "expected": "long (8-22)",
+          "observed": "16 messages",
+          "status": "✅",
+          "message": "Length correct"
+        },
+        {
+          "param": "system_prompt_type",
+          "expected": "none",
+          "observed": "10 words",
+          "status": "⚠️",
+          "message": "System prompt present when not required"
+        },
+        {
+          "param": "conversation_language",
+          "expected": "it",
+          "observed": "it (9 IT markers)",
+          "status": "✅",
+          "message": "Correct language: it"
+        },
+        {
+          "param": "first_tool_position",
+          "expected": "no tool call",
+          "observed": "position 3",
+          "status": "⚠️",
+          "message": "Tool call present (not critical)"
+        },
+        {
+          "param": "user_style",
+          "expected": "confused",
+          "observed": "informal",
+          "status": "⚠️",
+          "message": "Detected style: informal"
+        },
+        {
+          "param": "consecutive_roles",
+          "expected": "no problematic consecutive roles",
+          "observed": "OK",
+          "status": "✅",
+          "message": "Message structure correct"
+        },
+        {
+          "param": "parallel_tool_calls",
+          "expected": "1 tool_call per message",
+          "observed": "OK (no parallel)",
+          "status": "✅",
+          "message": "No parallel tool call"
+        },
+        {
+          "param": "out_of_scope_requests",
+          "expected": "0 (none)",
+          "observed": "N/A",
+          "status": "⏭️",
+          "message": "No out-of-scope required"
+        }
+      ]
+    },
+    {
+      "example_id": "202c1c44",
+      "score": 0.8888888888888888,
+      "passed": 8,
+      "failed": 0,
+      "warnings": 1,
+      "results": [
+        {
+          "param": "call_type",
+          "expected": "negative (0 tool calls)",
+          "observed": "0 tool calls",
+          "status": "✅",
+          "message": "No tool call as required"
+        },
+        {
+          "param": "num_tool_calls",
+          "expected": "0",
+          "observed": "0",
+          "status": "✅",
+          "message": "No tool call as required"
+        },
+        {
+          "param": "conversation_length",
+          "expected": "long (8-22)",
+          "observed": "14 messages",
+          "status": "✅",
+          "message": "Length correct"
+        },
+        {
+          "param": "system_prompt_type",
+          "expected": "detailed (50-500 words)",
+          "observed": "135 words",
+          "status": "✅",
+          "message": "System prompt of the correct length"
+        },
+        {
+          "param": "conversation_language",
+          "expected": "en",
+          "observed": "it (3 IT markers)",
+          "status": "⚠️",
+          "message": "Detected language: it (heuristic check)"
+        },
+        {
+          "param": "first_tool_position",
+          "expected": "no tool call",
+          "observed": "no tool call",
+          "status": "✅",
+          "message": "No tool call as required"
+        },
+        {
+          "param": "user_style",
+          "expected": "informal",
+          "observed": "informal",
+          "status": "✅",
+          "message": "User style correct"
+        },
+        {
+          "param": "consecutive_roles",
+          "expected": "no problematic consecutive roles",
+          "observed": "OK",
+          "status": "✅",
+          "message": "Message structure correct"
+        },
+        {
+          "param": "parallel_tool_calls",
+          "expected": "1 tool_call per message",
+          "observed": "OK (no parallel)",
+          "status": "✅",
+          "message": "No parallel tool call"
+        },
+        {
+          "param": "out_of_scope_requests",
+          "expected": "0 (none)",
+          "observed": "N/A",
+          "status": "⏭️",
+          "message": "No out-of-scope required"
+        }
+      ]
+    },
+    {
+      "example_id": "22a67e42",
+      "score": 0.14285714285714285,
+      "passed": 1,
+      "failed": 0,
+      "warnings": 6,
+      "results": [
+        {
+          "param": "call_type",
+          "expected": "positive (>0 tool calls)",
+          "observed": "0 tool calls",
+          "status": "⚠️",
+          "message": "No tool call in a positive conversation"
+        },
+        {
+          "param": "num_tool_calls",
+          "expected": "1",
+          "observed": "0",
+          "status": "⚠️",
+          "message": "0 instead of 1"
+        },
+        {
+          "param": "conversation_length",
+          "expected": "medium (4-14)",
+          "observed": "0 messages",
+          "status": "⚠️",
+          "message": "Acceptable length (tolerance ±4)"
+        },
+        {
+          "param": "system_prompt_type",
+          "expected": "standard",
+          "observed": "absent",
+          "status": "⚠️",
+          "message": "System prompt missing"
+        },
+        {
+          "param": "conversation_language",
+          "expected": "it",
+          "observed": "en (0 IT markers)",
+          "status": "⚠️",
+          "message": "Detected language: en (heuristic check)"
+        },
+        {
+          "param": "first_tool_position",
+          "expected": "position ~5",
+          "observed": "no tool call",
+          "status": "⚠️",
+          "message": "No tool call found"
+        },
+        {
+          "param": "user_style",
+          "expected": "vague",
+          "observed": "no user messages",
+          "status": "⏭️",
+          "message": "No user message to analyze"
+        },
+        {
+          "param": "consecutive_roles",
+          "expected": "no problematic consecutive roles",
+          "observed": "conversation too short",
+          "status": "⏭️",
+          "message": "Conversation too short to validate"
+        },
+        {
+          "param": "parallel_tool_calls",
+          "expected": "1 tool_call per message",
+          "observed": "OK (no parallel)",
+          "status": "✅",
+          "message": "No parallel tool call"
+        },
+        {
+          "param": "out_of_scope_requests",
+          "expected": "0 (none)",
+          "observed": "N/A",
+          "status": "⏭️",
+          "message": "No out-of-scope required"
+        }
+      ]
+    },
+    {
+      "example_id": "2c8a1018",
+      "score": 1.0,
+      "passed": 9,
+      "failed": 0,
+      "warnings": 0,
+      "results": [
+        {
+          "param": "call_type",
+          "expected": "clarification/partial (0 tool calls)",
+          "observed": "0 tool calls",
+          "status": "✅",
+          "message": "No tool call as required for an unresolved clarification"
+        },
+        {
+          "param": "num_tool_calls",
+          "expected": "0",
+          "observed": "0",
+          "status": "✅",
+          "message": "No tool call as required"
+        },
+        {
+          "param": "conversation_length",
+          "expected": "short (2-6)",
+          "observed": "4 messages",
+          "status": "✅",
+          "message": "Length correct"
+        },
+        {
+          "param": "system_prompt_type",
+          "expected": "detailed (50-500 words)",
+          "observed": "194 words",
+          "status": "✅",
+          "message": "System prompt of the correct length"
+        },
+        {
+          "param": "conversation_language",
+          "expected": "it",
+          "observed": "it (3 IT markers)",
+          "status": "✅",
+          "message": "Correct language: it"
+        },
+        {
+          "param": "first_tool_position",
+          "expected": "no tool call",
+          "observed": "no tool call",
+          "status": "✅",
+          "message": "No tool call as required"
+        },
+        {
+          "param": "user_style",
+          "expected": "informal",
+          "observed": "informal",
+          "status": "✅",
+          "message": "User style correct"
+        },
+        {
+          "param": "consecutive_roles",
+          "expected": "no problematic consecutive roles",
+          "observed": "OK",
+          "status": "✅",
+          "message": "Message structure correct"
+        },
+        {
+          "param": "parallel_tool_calls",
+          "expected": "1 tool_call per message",
+          "observed": "OK (no parallel)",
+          "status": "✅",
+          "message": "No parallel tool call"
+        },
+        {
+          "param": "out_of_scope_requests",
+          "expected": "0 (none)",
+          "observed": "N/A",
+          "status": "⏭️",
+          "message": "No out-of-scope required"
+        }
+      ]
+    },
+    {
+      "example_id": "4c87db0e",
+      "score": 0.6666666666666666,
+      "passed": 6,
+      "failed": 0,
+      "warnings": 3,
+      "results": [
+        {
+          "param": "call_type",
+          "expected": "clarification/unresolved (0 tool calls)",
+          "observed": "1 tool calls",
+          "status": "⚠️",
+          "message": "Tool calls present in an unresolved clarification"
+        },
+        {
+          "param": "num_tool_calls",
+          "expected": "0",
+          "observed": "1",
+          "status": "⚠️",
+          "message": "1 tool calls instead of 0"
+        },
+        {
+          "param": "conversation_length",
+          "expected": "long (8-22)",
+          "observed": "15 messages",
+          "status": "✅",
+          "message": "Length correct"
+        },
+        {
+          "param": "system_prompt_type",
+          "expected": "standard (15-80 words)",
+          "observed": "69 words",
+          "status": "✅",
+          "message": "System prompt of the correct length"
+        },
+        {
+          "param": "conversation_language",
+          "expected": "it",
+          "observed": "it (8 IT markers)",
+          "status": "✅",
+          "message": "Correct language: it"
+        },
+        {
+          "param": "first_tool_position",
+          "expected": "no tool call",
+          "observed": "position 7",
+          "status": "⚠️",
+          "message": "Tool call present (not critical)"
+        },
+        {
+          "param": "user_style",
+          "expected": "formal",
+          "observed": "formal",
+          "status": "✅",
+          "message": "User style correct"
+        },
+        {
+          "param": "consecutive_roles",
+          "expected": "no problematic consecutive roles",
+          "observed": "OK",
+          "status": "✅",
+          "message": "Message structure correct"
+        },
+        {
+          "param": "parallel_tool_calls",
+          "expected": "1 tool_call per message",
+          "observed": "OK (no parallel)",
+          "status": "✅",
+          "message": "No parallel tool call"
+        },
+        {
+          "param": "out_of_scope_requests",
+          "expected": "0 (none)",
+          "observed": "N/A",
+          "status": "⏭️",
+          "message": "No out-of-scope required"
+        }
+      ]
+    },
+    {
+      "example_id": "bd570807",
+      "score": 0.8888888888888888,
+      "passed": 8,
+      "failed": 0,
+      "warnings": 1,
+      "results": [
+        {
+          "param": "call_type",
+          "expected": "clarification/resolved (>0 tool calls)",
+          "observed": "1 tool calls",
+          "status": "✅",
+          "message": "Tool call after clarification as required"
+        },
+        {
+          "param": "num_tool_calls",
+          "expected": "1",
+          "observed": "1",
+          "status": "✅",
+          "message": "Exact number of tool calls"
+        },
+        {
+          "param": "conversation_length",
+          "expected": "long (8-22)",
+          "observed": "12 messages",
+          "status": "✅",
+          "message": "Length correct"
+        },
+        {
+          "param": "system_prompt_type",
+          "expected": "detailed (50-500 words)",
+          "observed": "305 words",
+          "status": "✅",
+          "message": "System prompt of the correct length"
+        },
+        {
+          "param": "conversation_language",
+          "expected": "it",
+          "observed": "it (10 IT markers)",
+          "status": "✅",
+          "message": "Correct language: it"
+        },
+        {
+          "param": "first_tool_position",
+          "expected": "position ~7",
+          "observed": "position 5",
+          "status": "✅",
+          "message": "Position OK (diff=2, tolerance ±3)"
+        },
+        {
+          "param": "user_style",
+          "expected": "vague",
+          "observed": "informal",
+          "status": "⚠️",
+          "message": "Detected style: informal"
+        },
+        {
+          "param": "consecutive_roles",
+          "expected": "no problematic consecutive roles",
+          "observed": "OK",
+          "status": "✅",
+          "message": "Message structure correct"
+        },
+        {
+          "param": "parallel_tool_calls",
+          "expected": "1 tool_call per message",
+          "observed": "OK (no parallel)",
+          "status": "✅",
+          "message": "No parallel tool call"
+        },
+        {
+          "param": "out_of_scope_requests",
+          "expected": "0 (none)",
+          "observed": "N/A",
+          "status": "⏭️",
+          "message": "No out-of-scope required"
+        }
+      ]
+    }
+  ]
+}

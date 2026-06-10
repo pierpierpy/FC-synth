@@ -3,7 +3,7 @@
 let data = { examples: [], metadata: null, file: null, stats: null };
 let filteredExamples = [];
 let selectedIndex = -1;
-let currentFileInfo = null; // Info sul file corrente dal server
+let currentFileInfo = null; // Info about the current file from the server
 
 // Pagination state
 let pagination = {
@@ -28,7 +28,7 @@ async function refreshFiles() {
         const result = await resp.json();
         
         const select = document.getElementById('fileSelect');
-        select.innerHTML = '<option value="">-- Seleziona file --</option>';
+        select.innerHTML = '<option value="">-- Select file --</option>';
         
         result.files.forEach(f => {
             const opt = document.createElement('option');
@@ -56,16 +56,16 @@ async function loadSelectedFile() {
         batchName: selectedOpt.dataset.batchName
     };
     
-    // Mostra/nascondi toggle postprocessed
+    // Show/hide postprocessed toggle
     updatePostprocessControls();
-    
+
     // Reset pagination
     pagination.page = 1;
-    
+
     await loadPage(1);
 }
 
-// Carica una pagina specifica
+// Load a specific page
 async function loadPage(page) {
     const filename = currentFileInfo?.name;
     if (!filename) return;
@@ -75,17 +75,17 @@ async function loadPage(page) {
         const result = await resp.json();
         
         if (result.error) {
-            alert('Errore: ' + result.error);
+            alert('Error: ' + result.error);
             return;
         }
-        
-        // Salva dati
+
+        // Save data
         data.examples = result.examples || [];
         data.metadata = result.metadata || null;
         data.file = filename;
-        data.stats = result.stats || null;  // Stats calcolate su TUTTO il dataset
-        
-        // Aggiorna pagination (backend usa snake_case, frontend camelCase)
+        data.stats = result.stats || null;  // Stats computed over the WHOLE dataset
+
+        // Update pagination (backend uses snake_case, frontend camelCase)
         const p = result.pagination || {};
         pagination = {
             page: p.page || 1,
@@ -97,15 +97,15 @@ async function loadPage(page) {
         filteredExamples = [...data.examples];
         
         renderMetadata();
-        renderStats();  // Usa stats dal server (calcolate su TUTTO)
+        renderStats();  // Use stats from the server (computed over the WHOLE dataset)
         renderList();
         renderPagination();
     } catch (err) {
-        alert('Errore nel caricamento: ' + err.message);
+        alert('Error while loading: ' + err.message);
     }
 }
 
-// Toggle tra originale e postprocessed
+// Toggle between original and postprocessed
 async function togglePostprocessed() {
     if (!currentFileInfo) return;
     
@@ -115,13 +115,13 @@ async function togglePostprocessed() {
         ? basePath + 'examples_postprocessed.jsonl'
         : basePath + 'examples.jsonl';
     
-    // Aggiorna currentFileInfo e ricarica
+    // Update currentFileInfo and reload
     currentFileInfo.name = filename;
     pagination.page = 1;
     await loadPage(1);
 }
 
-// Mostra/nascondi controlli postprocess
+// Show/hide postprocess controls
 function updatePostprocessControls() {
     const toggle = document.getElementById('postprocessToggle');
     const runBtn = document.getElementById('runPostprocessBtn');
@@ -140,7 +140,7 @@ function updatePostprocessControls() {
     }
 }
 
-// Esegui postprocess
+// Run postprocess
 async function runPostprocess() {
     if (!currentFileInfo?.batchName) return;
     
@@ -153,36 +153,37 @@ async function runPostprocess() {
         const result = await resp.json();
         
         if (result.error) {
-            alert('Errore: ' + result.error);
+            alert('Error: ' + result.error);
             return;
         }
-        
-        alert(`✅ Post-processing completato!\n\nEsempi modificati: ${result.stats.examples_modified}\nUser merged: ${result.stats.user_merged}\nReflections rimosse: ${result.stats.reflections_removed}`);
-        
-        // Aggiorna stato e ricarica
+
+        alert(`✅ Post-processing complete!\n\nExamples modified: ${result.stats.examples_modified}\nUser merged: ${result.stats.user_merged}\nReflections removed: ${result.stats.reflections_removed}`);
+
+        // Update state and reload
         currentFileInfo.hasPostprocessed = true;
         updatePostprocessControls();
-        
-        // Auto-switch a postprocessed
+
+        // Auto-switch to postprocessed
         document.getElementById('postprocessCheckbox').checked = true;
         togglePostprocessed();
-        
-        // Refresh dropdown per aggiornare badge
+
+        // Refresh dropdown to update the badge
         refreshFiles();
-        
+
     } catch (err) {
-        alert('Errore: ' + err.message);
+        alert('Error: ' + err.message);
     } finally {
         btn.disabled = false;
         btn.textContent = '⚙️ Run Postprocess';
     }
 }
 
-// File Upload (local)
-document.getElementById('fileInput').addEventListener('change', function(e) {
+// File Upload (local) — optional feature; the input may be absent from the page.
+const fileInputEl = document.getElementById('fileInput');
+if (fileInputEl) fileInputEl.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
@@ -215,7 +216,7 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
             renderStats();
             renderList();
         } catch (err) {
-            alert('Errore nel parsing: ' + err.message);
+            alert('Error while parsing: ' + err.message);
         }
     };
     reader.readAsText(file);
@@ -243,22 +244,22 @@ function renderMetadata() {
     `;
 }
 
-// Stats - usa stats dal server (calcolate su TUTTO il dataset)
+// Stats - use stats from the server (computed over the WHOLE dataset)
 function renderStats() {
-    // Se abbiamo stats dal server, usale (sono su TUTTO il dataset)
+    // If we have stats from the server, use them (they cover the WHOLE dataset)
     const stats = data.stats || calculateStatsFromPage();
     const failCount = stats.fail_convo ?? stats.failConvo ?? 0;
     
     document.getElementById('stats').innerHTML = `
         <div class="stat-box total">
             <div class="stat-value">${stats.total}</div>
-            <div class="stat-label">Totali</div>
+            <div class="stat-label">Total</div>
         </div>
         <div class="stat-box pass">
             <div class="stat-value">${stats.pass_convo ?? stats.passConvo}</div>
             <div class="stat-label">✅ OK</div>
         </div>
-        <div class="stat-box fail clickable ${failFilterActive ? 'active-filter' : ''}" onclick="toggleFailFilter()" title="Clicca per filtrare solo FAIL">
+        <div class="stat-box fail clickable ${failFilterActive ? 'active-filter' : ''}" onclick="toggleFailFilter()" title="Click to filter only FAIL">
             <div class="stat-value">${failCount}</div>
             <div class="stat-label">❌ Fail</div>
         </div>
@@ -277,7 +278,7 @@ function renderStats() {
     `;
 }
 
-// Fallback: calcola stats dalla pagina corrente (per upload locale)
+// Fallback: compute stats from the current page (for local upload)
 function calculateStatsFromPage() {
     let passConvo = 0, failConvo = 0, warnConvo = 0, errors = 0;
     let totalScore = 0;
@@ -331,7 +332,7 @@ function renderCheckStats(byCheck) {
         return;
     }
     
-    // Ordina per numero di problemi (fail + warn)
+    // Sort by number of issues (fail + warn)
     const sorted = Object.entries(byCheck).sort((a, b) => {
         const aProblems = a[1].fail + a[1].warn;
         const bProblems = b[1].fail + b[1].warn;
@@ -345,9 +346,9 @@ function renderCheckStats(byCheck) {
         const hasProblems = counts.fail > 0 || counts.warn > 0;
         
         html += `
-            <div class="check-stat-item ${hasProblems ? 'has-problems' : ''}" 
-                 onclick="filterByCheck('${checkName}')" 
-                 title="Click per filtrare">
+            <div class="check-stat-item ${hasProblems ? 'has-problems' : ''}"
+                 onclick="filterByCheck('${checkName}')"
+                 title="Click to filter">
                 <span class="check-name">${checkName}</span>
                 <span class="check-counts">
                     <span class="c-pass">✅${counts.pass}</span>
@@ -362,8 +363,8 @@ function renderCheckStats(byCheck) {
     
     container.innerHTML = html;
     
-    // Popola anche il dropdown filtro
-    // Escludi check poco utili per il filtering
+    // Also populate the filter dropdown
+    // Exclude checks that are not useful for filtering
     const excludeFromFilter = [
         'conversation_length', 
         'user_style', 
@@ -373,37 +374,37 @@ function renderCheckStats(byCheck) {
     ];
     
     const filterSelect = document.getElementById('filterCheck');
-    filterSelect.innerHTML = '<option value="all">Tutti i check</option>';
+    filterSelect.innerHTML = '<option value="all">All checks</option>';
     sorted.forEach(([checkName, counts]) => {
-        // Salta check esclusi
+        // Skip excluded checks
         if (excludeFromFilter.includes(checkName)) return;
-        
+
         const problems = counts.fail + counts.warn;
         if (problems > 0) {
-            filterSelect.innerHTML += `<option value="${checkName}">${checkName} (${problems} problemi)</option>`;
+            filterSelect.innerHTML += `<option value="${checkName}">${checkName} (${problems} issues)</option>`;
         }
     });
 }
 
 function filterByCheck(checkName) {
-    // Non più usato
+    // No longer used
 }
 
-// Toggle fail filter - chiamato cliccando il box FAIL rosso
+// Toggle fail filter - triggered by clicking the red FAIL box
 async function toggleFailFilter() {
     failFilterActive = !failFilterActive;
-    
-    // Aggiorna UI stats per mostrare stato attivo
+
+    // Update stats UI to show active state
     renderStats();
-    
-    // Mostra/nascondi filtro categorie
+
+    // Show/hide category filter
     const filterDiv = document.getElementById('failCategoryFilter');
     if (failFilterActive) {
-        // Mostra filtro categorie FAIL
+        // Show FAIL category filter
         const stats = data.stats || {};
         const byCheck = stats.by_check || {};
-        
-        // Categorie che possono avere FAIL (solo consecutive_roles e parallel_tool_calls)
+
+        // Categories that can have FAIL (only consecutive_roles and parallel_tool_calls)
         const failCategories = [];
         ['consecutive_roles', 'parallel_tool_calls'].forEach(cat => {
             const catData = byCheck[cat] || {};
@@ -415,37 +416,37 @@ async function toggleFailFilter() {
         if (failCategories.length > 0) {
             filterDiv.innerHTML = `
                 <div class="fail-filter-header">
-                    <span>🔍 Filtra per categoria:</span>
+                    <span>🔍 Filter by category:</span>
                     <select id="failCategorySelect" onchange="applyFailCategoryFilter()">
-                        <option value="all">Tutti i FAIL (${failCategories.reduce((s, c) => s + c.count, 0)})</option>
+                        <option value="all">All FAIL (${failCategories.reduce((s, c) => s + c.count, 0)})</option>
                         ${failCategories.map(c => `<option value="${c.name}">${c.name} (${c.count})</option>`).join('')}
                     </select>
                 </div>
             `;
             filterDiv.classList.remove('hidden');
         } else {
-            filterDiv.innerHTML = '<div class="fail-filter-header">Nessun FAIL trovato</div>';
+            filterDiv.innerHTML = '<div class="fail-filter-header">No FAIL found</div>';
             filterDiv.classList.remove('hidden');
         }
-        
-        // Carica solo FAIL
+
+        // Load only FAIL
         await loadPageWithFilter('fail');
     } else {
         filterDiv.classList.add('hidden');
         filterDiv.innerHTML = '';
-        // Torna alla vista normale
+        // Return to the normal view
         await loadPage(1);
     }
 }
 
-// Applica filtro categoria FAIL
+// Apply FAIL category filter
 async function applyFailCategoryFilter() {
     const select = document.getElementById('failCategorySelect');
     const category = select.value;
     await loadPageWithFilter('fail', category === 'all' ? null : category);
 }
 
-// Carica pagina con filtro status
+// Load a page with a status filter
 async function loadPageWithFilter(status, failCategory = null) {
     const filename = currentFileInfo?.name;
     if (!filename) return;
@@ -458,14 +459,14 @@ async function loadPageWithFilter(status, failCategory = null) {
         
         const resp = await fetch(url);
         const result = await resp.json();
-        
+
         if (result.error) {
-            alert('Errore: ' + result.error);
+            alert('Error: ' + result.error);
             return;
         }
-        
+
         data.examples = result.examples || [];
-        // Mantieni le stats originali (su tutto)
+        // Keep the original stats (over everything)
         if (result.stats) {
             data.stats = result.stats;
         }
@@ -483,7 +484,7 @@ async function loadPageWithFilter(status, failCategory = null) {
         renderList();
         renderPagination();
     } catch (err) {
-        alert('Errore nel caricamento: ' + err.message);
+        alert('Error while loading: ' + err.message);
     }
 }
 
@@ -549,39 +550,45 @@ function countToolCalls(messages) {
 function renderList() {
     const container = document.getElementById('listItems');
     container.innerHTML = '';
-    
+
     if (filteredExamples.length === 0) {
-        container.innerHTML = '<div class="empty-list">Nessun esempio trovato</div>';
+        container.innerHTML = '<div class="empty-list">No examples found</div>';
         return;
     }
-    
-    // Calcola l'indice globale per la numerazione
+
+    // Compute the global offset for numbering
     const globalOffset = (pagination.page - 1) * pagination.perPage;
-    
+
     filteredExamples.forEach((ex, idx) => {
         const status = getExampleStatus(ex);
         const params = ex.params || {};
         const callType = params.call_type || 'unknown';
         const subType = params.positive_type || params.negative_reason || params.clarification_outcome || '';
         const score = ex.validation?.score != null ? Math.round(ex.validation.score * 100) : '?';
-        
+
+        // Tiny domain/language hint shown next to the call type
+        const domain = params.domain || 'N/A';
+        const lang = params.conversation_language || '?';
+        const typeLabel = subType ? `${callType}/${subType}` : callType;
+
         const item = document.createElement('div');
         item.className = `example-item ${selectedIndex === idx ? 'active' : ''} status-${status}`;
         item.onclick = () => selectExample(idx);
-        
+
         item.innerHTML = `
             <div class="example-item-header">
-                <span class="example-id">#${ex.id || (globalOffset + idx + 1)}</span>
-                <span class="example-badge badge-${status}">${status.toUpperCase()}</span>
+                <span class="example-id">
+                    <span class="status-dot status-dot-${status}" title="${status}"></span>#${escapeHtml(String(ex.id ?? (globalOffset + idx + 1)))}
+                </span>
                 <span class="example-score">${score}%</span>
             </div>
+            <div class="example-type">${escapeHtml(typeLabel)}</div>
             <div class="example-meta">
-                ${params.domain || 'N/A'} • ${params.conversation_language || '?'} • ${(ex.messages || []).length} msgs
+                ${escapeHtml(domain)} • ${escapeHtml(lang)} • ${(ex.messages || []).length} msgs
             </div>
-            <div class="example-type">${callType}/${subType}</div>
-            ${ex.error ? `<div class="example-error">💥 ${ex.error.substring(0, 50)}...</div>` : ''}
+            ${ex.error ? `<div class="example-error">💥 ${escapeHtml(ex.error.substring(0, 50))}...</div>` : ''}
         `;
-        
+
         container.appendChild(item);
     });
 }
@@ -592,15 +599,15 @@ function renderPagination() {
     if (!container) return;
     
     if (pagination.totalPages <= 1) {
-        container.innerHTML = `<div class="pagination-info">Pagina 1 di 1 (${pagination.totalCount} esempi)</div>`;
+        container.innerHTML = `<div class="pagination-info">Page 1 of 1 (${pagination.totalCount} examples)</div>`;
         return;
     }
-    
+
     const { page, totalPages, totalCount, perPage } = pagination;
     const start = (page - 1) * perPage + 1;
     const end = Math.min(page * perPage, totalCount);
-    
-    // Genera i numeri di pagina da mostrare
+
+    // Generate the page numbers to display
     let pageNumbers = [];
     const maxVisible = 5;
     let startPage = Math.max(1, page - Math.floor(maxVisible / 2));
@@ -616,21 +623,21 @@ function renderPagination() {
     
     container.innerHTML = `
         <div class="pagination-info">
-            ${start}-${end} di ${totalCount}
+            ${start}-${end} of ${totalCount}
         </div>
         <div class="pagination-buttons">
-            <button onclick="goToPage(1)" ${page === 1 ? 'disabled' : ''} title="Prima pagina">⏮</button>
-            <button onclick="goToPage(${page - 1})" ${page === 1 ? 'disabled' : ''} title="Precedente">◀</button>
-            ${pageNumbers.map(p => 
+            <button onclick="goToPage(1)" ${page === 1 ? 'disabled' : ''} title="First page">⏮</button>
+            <button onclick="goToPage(${page - 1})" ${page === 1 ? 'disabled' : ''} title="Previous">◀</button>
+            ${pageNumbers.map(p =>
                 `<button onclick="goToPage(${p})" class="${p === page ? 'active' : ''}">${p}</button>`
             ).join('')}
-            <button onclick="goToPage(${page + 1})" ${page === totalPages ? 'disabled' : ''} title="Successiva">▶</button>
-            <button onclick="goToPage(${totalPages})" ${page === totalPages ? 'disabled' : ''} title="Ultima pagina">⏭</button>
+            <button onclick="goToPage(${page + 1})" ${page === totalPages ? 'disabled' : ''} title="Next">▶</button>
+            <button onclick="goToPage(${totalPages})" ${page === totalPages ? 'disabled' : ''} title="Last page">⏭</button>
         </div>
         <div class="pagination-goto">
-            <input type="number" id="gotoPageInput" min="1" max="${totalPages}" value="${page}" 
+            <input type="number" id="gotoPageInput" min="1" max="${totalPages}" value="${page}"
                    onkeydown="if(event.key==='Enter')goToPageInput()">
-            <button onclick="goToPageInput()">Vai</button>
+            <button onclick="goToPageInput()">Go</button>
         </div>
     `;
 }
@@ -687,27 +694,31 @@ function renderDetail(ex) {
     // Check for error
     if (ex.error) {
         panel.innerHTML = `
+            ${renderSamplerChips(params, observed)}
             <div class="detail-section error-section">
-                <div class="section-header">💥 Errore di Generazione</div>
+                <div class="section-header">💥 Generation error</div>
                 <div class="section-content">
                     <pre class="error-content">${escapeHtml(ex.error)}</pre>
                 </div>
             </div>
             <div class="detail-section">
-                <div class="section-header">⚙️ Parametri Richiesti</div>
+                <div class="section-header">⚙️ Requested parameters</div>
                 <div class="section-content">
-                    <pre>${JSON.stringify(params, null, 2)}</pre>
+                    <pre>${escapeHtml(JSON.stringify(params, null, 2))}</pre>
                 </div>
             </div>
         `;
         return;
     }
-    
+
     panel.innerHTML = `
+        <!-- Sampler chips summary -->
+        ${renderSamplerChips(params, observed)}
+
         <!-- Validation Section -->
         <div class="detail-section">
             <div class="section-header" onclick="toggleSection(this)">
-                <span>✅ Validazione</span>
+                <span>✅ Validation</span>
                 <span class="section-badge">${validation.score != null ? Math.round(validation.score * 100) : '?'}% (${validation.passed || 0}/${(validation.passed || 0) + (validation.failed || 0) + (validation.warnings || 0)})</span>
             </div>
             <div class="section-content">
@@ -715,27 +726,27 @@ function renderDetail(ex) {
                     <table class="validation-table">
                         <thead>
                             <tr>
-                                <th>Parametro</th>
+                                <th>Parameter</th>
                                 <th>Expected</th>
-                                <th>Actual</th>
+                                <th>Observed</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${validation.results.map(r => `
                                 <tr>
-                                    <td>${r.param}</td>
-                                    <td>${r.expected}</td>
-                                    <td>${r.observed}</td>
-                                    <td>${r.status}</td>
+                                    <td>${escapeHtml(String(r.param ?? ''))}</td>
+                                    <td>${escapeHtml(formatValue(r.expected))}</td>
+                                    <td>${escapeHtml(formatValue(r.observed))}</td>
+                                    <td class="${statusClass(r.status)}">${escapeHtml(String(r.status ?? ''))}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
                     </table>
-                ` : '<p>Validazione non disponibile</p>'}
+                ` : '<p>Validation not available</p>'}
             </div>
         </div>
-        
+
         <!-- Parameters vs Observed -->
         <div class="detail-section">
             <div class="section-header" onclick="toggleSection(this)">
@@ -771,14 +782,14 @@ function renderDetail(ex) {
                 <span>📋 System Prompt</span>
             </div>
             <div class="section-content">
-                <div class="system-prompt">${ex.system_prompt || '<em>(none)</em>'}</div>
+                <div class="system-prompt">${ex.system_prompt ? escapeHtml(ex.system_prompt) : '<em>(none)</em>'}</div>
             </div>
         </div>
-        
+
         <!-- Conversation Section -->
         <div class="detail-section">
             <div class="section-header" onclick="toggleSection(this)">
-                <span>💬 Conversazione (${messages.length} messaggi)</span>
+                <span>💬 Conversation (${messages.length} messages)</span>
             </div>
             <div class="section-content conversation-content">
                 ${messages.map(m => renderMessage(m)).join('')}
@@ -813,24 +824,42 @@ function renderDetail(ex) {
 
 function renderMessage(msg) {
     const role = msg.role || 'unknown';
+
+    // Tool result message: render a "result" card with the tool_call_id chip
+    // and pretty-printed JSON content.
+    if (role === 'tool') {
+        const chip = msg.tool_call_id
+            ? `<span class="tool-id">${escapeHtml(String(msg.tool_call_id))}</span>`
+            : '';
+        return `
+            <div class="message message-tool">
+                <div class="message-role">tool result ${chip}</div>
+                <div class="message-content"><pre>${escapeHtml(formatJson(msg.content))}</pre></div>
+            </div>
+        `;
+    }
+
     let content = '';
-    
+
+    // User/assistant text bubble (HTML-escaped).
     if (msg.content) {
         content = `<div class="message-content">${escapeHtml(msg.content)}</div>`;
     }
-    
+
+    // Assistant tool calls: one "call" card per tool_call. Pretty-print the
+    // arguments JSON string, falling back to the raw string if not parseable.
     if (msg.tool_calls && msg.tool_calls.length > 0) {
         content += msg.tool_calls.map(tc => `
             <div class="tool-call">
-                <span class="tool-name">🔧 ${tc.function?.name || 'unknown'}()</span>
-                <pre>${formatJson(tc.function?.arguments)}</pre>
+                <span class="tool-name">🔧 ${escapeHtml(tc.function?.name || 'unknown')}()</span>
+                <pre>${escapeHtml(formatJson(tc.function?.arguments))}</pre>
             </div>
         `).join('');
     }
-    
+
     return `
         <div class="message message-${role}">
-            <div class="message-role">${role}${msg.tool_call_id ? ` <span class="tool-id">[${msg.tool_call_id}]</span>` : ''}</div>
+            <div class="message-role">${escapeHtml(role)}</div>
             ${content}
         </div>
     `;
@@ -852,12 +881,65 @@ function formatValue(v) {
 }
 
 function formatJson(str) {
-    if (!str) return '';
+    if (str === null || str === undefined || str === '') return '';
+    // Already an object/array: pretty-print directly.
+    if (typeof str === 'object') {
+        try {
+            return JSON.stringify(str, null, 2);
+        } catch {
+            return String(str);
+        }
+    }
+    // String: try to parse-then-pretty-print, fall back to the raw string.
     try {
         return JSON.stringify(JSON.parse(str), null, 2);
     } catch {
-        return str;
+        return String(str);
     }
+}
+
+// Map a validation status emoji (✅/❌/⚠️) to a CSS color class.
+function statusClass(status) {
+    if (status === '✅') return 'status-pass';
+    if (status === '❌') return 'status-fail';
+    if (status === '⚠️') return 'status-warn';
+    return '';
+}
+
+// Compact "sampler chips" summary row shown at the top of the detail panel.
+function renderSamplerChips(params, observed) {
+    params = params || {};
+    observed = observed || {};
+
+    const chips = [];
+    const addChip = (label, value) => {
+        if (value === null || value === undefined || value === '') return;
+        chips.push(
+            `<span class="param-chip"><span class="param-chip-key">${escapeHtml(label)}</span>${escapeHtml(formatValue(value))}</span>`
+        );
+    };
+
+    addChip('call_type', params.call_type);
+
+    // Languages: combine tool/conversation language when available.
+    const langs = [];
+    if (params.conversation_language) langs.push(params.conversation_language);
+    if (params.tool_language && params.tool_language !== params.conversation_language) {
+        langs.push(params.tool_language);
+    }
+    if (langs.length) addChip('lang', langs.join(' / '));
+
+    addChip('domain', params.domain);
+    addChip('edge_case', params.edge_case);
+    addChip('user_style', params.user_style);
+
+    // num_tool_calls: prefer requested, fall back to observed.
+    const numToolCalls = params.num_tool_calls ?? observed.num_tool_calls;
+    addChip('num_tool_calls', numToolCalls);
+
+    if (chips.length === 0) return '';
+
+    return `<div class="sampler-chips">${chips.join('')}</div>`;
 }
 
 function escapeHtml(text) {

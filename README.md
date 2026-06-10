@@ -69,6 +69,83 @@ Generation parameters and sampling distributions live in [`configs/default.yaml`
 
 ---
 
+## Serving a local teacher model (vLLM + Docker)
+
+The teacher can be **any OpenAI-compatible server** — OpenAI itself, Together/Groq, or a model you host
+locally. If you want to self-host, [vLLM](https://github.com/vllm-project/vllm) is one easy recipe; this
+section is the exact setup we verified on an 8× H100 host.
+
+**Why Docker (not `pip install vllm`).** Recent vLLM wheels ship **CUDA 13** binaries. On a host whose
+NVIDIA driver tops out at CUDA 12.2 (e.g. driver `535.x`), a local install fails at runtime with
+`libcudart.so.13: cannot open shared object file` or *"CUDA driver version is insufficient / driver too
+old"*. The fix: the official image `vllm/vllm-openai:v0.22.1` is a **CUDA 12.9** build, and it **bundles
+CUDA forward-compatibility libraries** that are supported for datacenter GPUs (H100, A100, …) on older
+drivers. Setting `VLLM_ENABLE_CUDA_COMPATIBILITY=1` turns those on, so the image runs fine on the 12.2
+driver — verified: model loaded across all 8 GPUs, tool-calling worked.
+
+> Use `--gpus all` (the modern Docker GPU flag). `--runtime nvidia` was tried and **failed** on this host.
+
+### Run it
+
+A parameterized launcher lives at [`scripts/serve_vllm.sh`](scripts/serve_vllm.sh):
+
+```bash
+# Defaults: MODEL=Qwen/Qwen3.6-35B-A3B PORT=8765 TP=8 MAX_LEN=32768
+./scripts/serve_vllm.sh
+
+# Or override any knob via env:
+MODEL=Qwen/Qwen3.6-35B-A3B PORT=8765 TP=8 MAX_LEN=32768 ./scripts/serve_vllm.sh
+```
+
+Under the hood it runs (abbreviated):
+
+```bash
+docker run --rm --gpus all --ipc=host -p 8765:8000 \
+  -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+  --env VLLM_ENABLE_CUDA_COMPATIBILITY=1 \
+  vllm/vllm-openai:v0.22.1 \
+  --model Qwen/Qwen3.6-35B-A3B --tensor-parallel-size 8 --max-model-len 32768 \
+  --gpu-memory-utilization 0.90 \
+  --reasoning-parser qwen3 --enable-auto-tool-choice --tool-call-parser qwen3_xml --trust-remote-code
+```
+
+**Parser flags (model-specific).** `Qwen/Qwen3.6-35B-A3B` is an MoE model (arch
+`Qwen3_5MoeForConditionalGeneration`, needs vLLM ≥ 0.17) that emits an **XML tool-call format** and a
+separate reasoning trace. So we pass `--enable-auto-tool-choice --tool-call-parser qwen3_xml` (parse those
+XML tool calls into OpenAI `tool_calls`) and `--reasoning-parser qwen3` (split the reasoning out of the
+final answer). A different model needs different parsers — see vLLM's tool-calling docs.
+
+### Point synthfc at it
+
+Set the four `SYNTHFC_*` env vars to the local endpoint (`SYNTHFC_API_KEY` is required but unused, so any
+placeholder works):
+
+```bash
+SYNTHFC_PROVIDER=openai
+SYNTHFC_MODEL='Qwen/Qwen3.6-35B-A3B'
+SYNTHFC_ENDPOINT='http://127.0.0.1:8765/v1'
+SYNTHFC_API_KEY=EMPTY
+```
+
+Drop the same block into your `.env` (`cp .env.example .env`, then `set -a && source .env && set +a`).
+
+### Readiness & sanity checks
+
+```bash
+# Is the server up and serving the model?
+curl http://127.0.0.1:8765/v1/models
+
+# One-line tool-calling sanity check (server should return a tool_calls response):
+curl http://127.0.0.1:8765/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"Qwen/Qwen3.6-35B-A3B","messages":[{"role":"user","content":"What is the weather in Rome?"}],"tools":[{"type":"function","function":{"name":"get_weather","description":"Get current weather for a city","parameters":{"type":"object","properties":{"city":{"type":"string"}},"required":["city"]}}}],"tool_choice":"auto"}'
+```
+
+Once `/v1/models` lists the model and the second call comes back with a `tool_calls` field, `synthfc
+generate` will use it as the teacher.
+
+---
+
 ## Quickstart
 
 ```bash
