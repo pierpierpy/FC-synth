@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>synthfc — FC Datasets (Export)</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .datasets-page {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .datasets-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .datasets-header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        .back-link {
+            color: #667;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            background: #f0f0f5;
+        }
+        
+        .back-link:hover {
+            background: #e0e0e8;
+        }
+        
+        .datasets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .dataset-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e5;
+        }
+        
+        .dataset-card.not-exported {
+            opacity: 0.6;
+            background: #f8fafc;
+        }
+        
+        .dataset-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        
+        .dataset-card:not(.not-exported):hover {
+            border-color: #22c55e;
+        }
+        
+        .dataset-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+        
+        .dataset-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+        
+        /* Export Stats */
+        .export-stats {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .export-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #059669;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .export-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .export-item {
+            text-align: center;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 6px;
+        }
+        
+        .export-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        
+        .export-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+        
+        .export-size {
+            font-size: 0.75rem;
+            color: #059669;
+            margin-top: 0.2rem;
+        }
+        
+        /* Validation Preview */
+        .validation-preview {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .validation-preview-title {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .validation-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        
+        .val-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .val-pass { color: #22c55e; font-weight: 600; }
+        .val-fail { color: #ef4444; font-weight: 600; }
+        .val-score { color: #3b82f6; font-weight: 600; }
+        
+        /* Actions */
+        .dataset-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .dataset-actions a, .dataset-actions button {
+            flex: 1;
+            text-align: center;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-view {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background: #2563eb;
+        }
+        
+        .btn-download {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .btn-download:hover {
+            background: #16a34a;
+        }
+        
+        .btn-disabled {
+            background: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .badge-exported {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        
+        .badge-raw {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+            grid-column: 1 / -1;
+        }
+        
+        /* Total summary */
+        .total-summary {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .summary-item {
+            text-align: center;
+        }
+        
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0369a1;
+        }
+        
+        .summary-label {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="datasets-page">
+        <div class="datasets-header">
+            <h1>📦 Exported Datasets</h1>
+            <a href="/" class="back-link">← Back to Viewer</a>
+        </div>
+        
+        <div class="total-summary" id="totalSummary" style="display: none;">
+            <div class="summary-item">
+                <div class="summary-value" id="totalDatasets">0</div>
+                <div class="summary-label">Exported Datasets</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="totalExamples">0</div>
+                <div class="summary-label">Total Examples</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="totalTrain">0</div>
+                <div class="summary-label">Train</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="totalTest">0</div>
+                <div class="summary-label">Test</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="totalSize">0 MB</div>
+                <div class="summary-label">Size</div>
+            </div>
+        </div>
+        
+        <div class="datasets-grid" id="datasetsGrid">
+            <div class="empty-state">
+                <p>⏳ Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadDatasets() {
+            try {
+                const resp = await fetch('/api/datasets');
+                const result = await resp.json();
+                
+                const grid = document.getElementById('datasetsGrid');
+                
+                if (!result.datasets || result.datasets.length === 0) {
+                    grid.innerHTML = '<div class="empty-state"><p>No datasets found</p></div>';
+                    return;
+                }
+                
+                // Calcola totali
+                let totalExported = 0;
+                let totalExamples = 0;
+                let totalTrain = 0;
+                let totalTest = 0;
+                let totalSize = 0;
+                
+                result.datasets.forEach(ds => {
+                    if (ds.exported) {
+                        totalExported++;
+                        totalExamples += ds.exported.total || 0;
+                        totalTrain += ds.exported.train || 0;
+                        totalTest += ds.exported.test || 0;
+                        totalSize += (ds.exported.all_size_mb || 0);
+                    }
+                });
+                
+                // Mostra summary se ci sono export
+                if (totalExported > 0) {
+                    document.getElementById('totalSummary').style.display = 'flex';
+                    document.getElementById('totalDatasets').textContent = totalExported;
+                    document.getElementById('totalExamples').textContent = totalExamples.toLocaleString();
+                    document.getElementById('totalTrain').textContent = totalTrain.toLocaleString();
+                    document.getElementById('totalTest').textContent = totalTest.toLocaleString();
+                    document.getElementById('totalSize').textContent = totalSize.toFixed(1) + ' MB';
+                }
+                
+                // Ordina: esportati prima
+                const sorted = result.datasets.sort((a, b) => {
+                    if (a.has_exported && !b.has_exported) return -1;
+                    if (!a.has_exported && b.has_exported) return 1;
+                    return b.modified - a.modified;
+                });
+                
+                grid.innerHTML = sorted.map(ds => renderDatasetCard(ds)).join('');
+            } catch (err) {
+                console.error(err);
+                document.getElementById('datasetsGrid').innerHTML =
+                    '<div class="empty-state"><p>❌ Error while loading</p></div>';
+            }
+        }
+        
+        function renderDatasetCard(ds) {
+            const exp = ds.exported;
+            const isExported = exp && exp.total > 0;
+            
+            // Badge
+            const badge = isExported
+                ? '<span class="badge badge-exported">✅ Exported</span>'
+                : '<span class="badge badge-raw">⏳ Not exported</span>';
+            
+            // Export section
+            let exportHtml = '';
+            if (isExported) {
+                exportHtml = `
+                    <div class="export-stats">
+                        <div class="export-title">📊 Final Dataset</div>
+                        <div class="export-grid">
+                            <div class="export-item">
+                                <div class="export-value">${exp.total.toLocaleString()}</div>
+                                <div class="export-label">Total</div>
+                                <div class="export-size">${exp.all_size_mb || '?'} MB</div>
+                            </div>
+                            <div class="export-item">
+                                <div class="export-value">${exp.train.toLocaleString()}</div>
+                                <div class="export-label">Train</div>
+                                <div class="export-size">${exp.train_size_mb || '?'} MB</div>
+                            </div>
+                            <div class="export-item">
+                                <div class="export-value">${exp.test.toLocaleString()}</div>
+                                <div class="export-label">Test (${(exp.test_split * 100).toFixed(0)}%)</div>
+                                <div class="export-size">${exp.test_size_mb || '?'} MB</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Validation preview
+            let validationHtml = '';
+            if (ds.count) {
+                const passRate = ds.count > 0 ? ((ds.pass_convo || 0) / ds.count * 100).toFixed(1) : 0;
+                validationHtml = `
+                    <div class="validation-preview">
+                        <div class="validation-preview-title">Validation (pre-export)</div>
+                        <div class="validation-row">
+                            <span class="val-item"><span class="val-pass">✅ ${ds.pass_convo || 0}</span> OK</span>
+                            <span class="val-item"><span class="val-fail">❌ ${ds.fail_convo || 0}</span> Filtered</span>
+                            <span class="val-item"><span class="val-score">📊 ${ds.avg_score || 0}%</span> Score</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Actions
+            const downloadBtn = isExported
+                ? `<a href="/api/download/${ds.batch_name}/all" class="btn-download">📥 Download</a>`
+                : `<span class="btn-disabled">Not available</span>`;
+            
+            return `
+                <div class="dataset-card ${isExported ? '' : 'not-exported'}">
+                    <div class="dataset-name">
+                        ${ds.name}
+                        ${badge}
+                    </div>
+                    <div class="dataset-meta">
+                        ${new Date(ds.modified * 1000).toLocaleString('it-IT')}
+                    </div>
+                    
+                    ${exportHtml}
+                    ${validationHtml}
+                    
+                    <div class="dataset-actions">
+                        <a href="/?file=${encodeURIComponent(ds.file_path)}" class="btn-view">👁️ View</a>
+                        ${downloadBtn}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Load on page ready
+        loadDatasets();
+    </script>
+</body>
+</html>

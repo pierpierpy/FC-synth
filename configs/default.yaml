@@ -1,0 +1,115 @@
+# synthfc default configuration.
+#
+# NO SECRETS HERE. API keys and endpoints come from the environment
+# (see .env.example). This file only controls model parameters, generation
+# settings, and the sampling distributions that shape the dataset.
+
+model:
+  # "openai" (any OpenAI-compatible endpoint) or "azure".
+  # The provider, model name, key and endpoint can also be set via env vars
+  # (SYNTHFC_PROVIDER / SYNTHFC_MODEL / SYNTHFC_API_KEY / SYNTHFC_ENDPOINT),
+  # which take precedence over the values here.
+  provider: openai
+  model: gpt-4o
+  temperature: 1.0
+  top_p: 1.0
+  max_tokens: 4096
+  api_version: "2024-10-21"   # Azure only
+
+generation:
+  batch_size: 25              # default number of examples per `generate` run
+  concurrency: 25             # parallel async requests
+  max_retries: 3
+  retry_delay: 2.0
+  delay_between_calls: 0.0    # seconds, sync path only
+  checkpoint_every: 0         # save a checkpoint every N examples (0 = off)
+
+# Sampling distributions. Each example samples one value from each
+# distribution to maximize diversity. Weights need not sum to 1.
+sampling:
+  # (tool_language, conversation_language)
+  language_combo:
+    "it,it": 0.5
+    "en,it": 0.2
+    "en,en": 0.2
+    "it,en": 0.1
+  num_tools_available:
+    2: 0.20
+    3: 0.35
+    4: 0.30
+    5: 0.15
+  call_type:
+    positive: 0.40
+    negative: 0.25
+    clarification: 0.35
+  positive_type:
+    direct: 0.25
+    after_chitchat: 0.35
+    followup: 0.20
+    multi_tool: 0.12
+    after_clarification: 0.08
+  negative_reason:
+    no_need: 0.5
+    out_of_scope: 0.3
+    already_answered: 0.2
+  clarification_outcome:
+    resolved: 0.5
+    unresolved: 0.3
+    partial: 0.2
+  num_tool_calls:
+    1: 0.55
+    2: 0.30
+    3: 0.15
+  first_tool_position:
+    1: 0.20
+    3: 0.25
+    5: 0.25
+    7: 0.20
+    9: 0.10
+  conversation_length:
+    short: 0.20      # 2-4 messages
+    medium: 0.35     # 6-10 messages
+    long: 0.30       # 12-18 messages
+    very_long: 0.15  # 20+ messages
+  history_type:
+    none: 0.12
+    chitchat: 0.25
+    context_setting: 0.28
+    previous_tool: 0.25
+    multi_topic: 0.10
+  user_style:
+    formal: 0.18
+    informal: 0.22
+    vague: 0.22
+    telegraphic: 0.10
+    frustrated: 0.06
+    confused: 0.10
+    verbose: 0.12
+  system_prompt_type:
+    none: 0.10
+    minimal: 0.25
+    standard: 0.40
+    detailed: 0.25
+  param_complexity:
+    explicit: 0.25
+    implicit: 0.40
+    mixed: 0.25
+    missing: 0.10
+  edge_case:
+    null: 0.45
+    topic_change: 0.08
+    user_correction: 0.05
+    tool_error: 0.05
+    tool_error_recovery: 0.12
+    ambiguous_request: 0.15
+    multi_step_task: 0.05
+    partial_success: 0.05
+  out_of_scope_requests:
+    0: 0.70
+    1: 0.25
+    2: 0.04
+    3: 0.01
+
+validation:
+  enabled: true
+  strict: false

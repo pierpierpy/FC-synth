@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "synthfc"
+version = "0.1.0"
+description = "Synthetic multi-turn function-calling (tool-use) dataset generator"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["llm", "function-calling", "tool-use", "synthetic-data", "dataset", "fine-tuning"]
+dependencies = [
+    "openai>=1.40",
+    "typer>=0.12",
+    "pyyaml>=6.0",
+    "tqdm>=4.66",
+]
+
+[project.optional-dependencies]
+# Web UI for browsing generated datasets.
+webapp = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "jinja2>=3.1",
+    "python-multipart>=0.0.9",
+]
+# Token statistics with a real HF chat template.
+stats = ["transformers>=4.40"]
+# Everything.
+all = [
+    "synthfc[webapp]",
+    "synthfc[stats]",
+]
+
+[project.scripts]
+synthfc = "synthfc.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["synthfc*"]
+
+[tool.setuptools.package-data]
+"synthfc.webapp" = ["templates/*.html", "static/*"]

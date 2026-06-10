@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>synthfc — FC Dataset Viewer</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>🔧 synthfc — FC Dataset Viewer</h1>
+            <div class="file-controls">
+                <select id="fileSelect" onchange="loadSelectedFile()">
+                    <option value="">-- Select file --</option>
+                </select>
+                <label id="postprocessToggle" class="toggle-label hidden">
+                    <input type="checkbox" id="postprocessCheckbox" onchange="togglePostprocessed()">
+                    <span>📦 Post-processed</span>
+                </label>
+                <button id="runPostprocessBtn" class="hidden" onclick="runPostprocess()">⚙️ Run Postprocess</button>
+                <a href="/stats" class="stats-btn">📊 Stats</a>
+                <a href="/datasets" class="stats-btn">📁 Datasets</a>
+            </div>
+        </div>
+        <div class="stats" id="stats"></div>
+        <div class="metadata" id="metadata"></div>
+    </header>
+
+    <main class="container">
+        <div class="main-layout">
+            <!-- Lista esempi -->
+            <aside class="example-list list-panel" id="exampleList">
+                <div class="list-header">
+                    <input type="text" id="searchInput" placeholder="🔍 Search..." onkeyup="filterExamples()">
+                </div>
+                <div id="failCategoryFilter" class="fail-category-filter hidden"></div>
+                <div class="list-items" id="listItems"></div>
+                <div class="pagination-controls" id="paginationControls"></div>
+            </aside>
+
+            <!-- Dettaglio -->
+            <section class="detail-panel" id="detailPanel">
+                <div class="empty-state">
+                    <p>👈 Select an example from the list</p>
+                    <p>or select a file from the dropdown</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
