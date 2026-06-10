@@ -51,6 +51,13 @@ This installs a `synthfc` command. You can also run everything as `python -m syn
 
 ## Configure
 
+`synthfc` needs a **teacher LLM** to call. Pick one of two paths:
+
+- **A — a hosted API** (OpenAI, Together, Groq, Azure OpenAI): just set your key/model below.
+- **B — self-host a model** (e.g. vLLM on your own GPUs): start the server first
+  (see [Serving a local teacher model](#serving-a-local-teacher-model-vllm--docker)),
+  then point `SYNTHFC_ENDPOINT` at it.
+
 Secrets come **only** from the environment — never from the code or the YAML config.
 
 ```bash
@@ -61,12 +68,23 @@ set -a && source .env && set +a
 | Variable | Meaning |
 |---|---|
 | `SYNTHFC_PROVIDER` | `openai` (any OpenAI-compatible API) or `azure` |
-| `SYNTHFC_MODEL` | Teacher model / deployment name (e.g. `gpt-4o`) |
-| `SYNTHFC_API_KEY` | API key (`OPENAI_API_KEY` is also accepted) |
-| `SYNTHFC_ENDPOINT` | Base URL (vLLM/Together/local…) or **required** Azure resource URL |
+| `SYNTHFC_MODEL` | Teacher model / deployment name (e.g. `gpt-4o`, or `Qwen/Qwen3.6-35B-A3B` for a local server) |
+| `SYNTHFC_API_KEY` | API key. `OPENAI_API_KEY` also works. For a local server it's unused — set any placeholder (e.g. `EMPTY`) |
+| `SYNTHFC_ENDPOINT` | **The LLM server's base URL.** Leave unset for OpenAI; set to `http://HOST:PORT/v1` for a local/OpenAI-compatible server; the Azure resource URL for Azure |
 | `SYNTHFC_API_VERSION` | Azure only |
 | `SYNTHFC_DATA_DIR` | Override output dir (default `./data`) |
 | `SYNTHFC_CONFIG` | Use a config file other than `configs/default.yaml` |
+
+**Example — pointing at a local vLLM server on port 8765:**
+
+```bash
+SYNTHFC_PROVIDER=openai
+SYNTHFC_MODEL='Qwen/Qwen3.6-35B-A3B'
+SYNTHFC_ENDPOINT='http://127.0.0.1:8765/v1'   # ← the vLLM endpoint goes here
+SYNTHFC_API_KEY=EMPTY
+```
+
+`.env.example` ships with this exact block ready to uncomment.
 
 Generation parameters and sampling distributions live in [`configs/default.yaml`](configs/default.yaml)
 (no secrets there). Edit it to reshape the dataset, or point `--config` at your own copy.
@@ -181,7 +199,7 @@ Run `synthfc --help` or `synthfc <command> --help` for full flags.
 | Command | What it does |
 |---|---|
 | `synthfc generate -n N` | Generate `N` conversations with the teacher LLM (async by default; `--sync` for serial). Auto-postprocesses unless `--no-postprocess`. |
-| `synthfc build <batch>` | Run the full pipeline on a batch: validate → postprocess → re-validate → export (train/test split) → expand. `--expand 0` to skip expansion. |
+| `synthfc build <batch>` | Run the full pipeline on a batch: validate → postprocess → re-validate → export (train/test split) → expand. `--expand 0` to skip expansion. Add `--enriched --model NAME` to also write self-describing rows (sampler params + teacher model + tools-separate + context/answer split). |
 | `synthfc serve` | Launch the FastAPI web UI to inspect examples, filter by validation status, and review conversations. |
 | `synthfc merge a.jsonl b.jsonl -o out.jsonl` | Merge exported datasets (dedups, ensures every conversation ends with an assistant turn). |
 | `synthfc stats data.jsonl --tokenizer <hf-id>` | Length/token statistics (real token counts with a chat template, or word counts without). |
@@ -563,12 +581,14 @@ synthfc/
 │   └── batch_api.py       # offline Batch API path
 ├── pipeline/
 │   ├── validate.py  postprocess.py  export.py  expand.py  merge.py  token_stats.py
+│   └── enriched_export.py # self-describing rows (sampler + model + tools + context/answer)
 ├── tools/
 │   ├── eng/          # English mock tool catalogue (21 categories)
 │   └── ita/          # Italian mock tool catalogue
 └── webapp/           # FastAPI dataset viewer
+scripts/serve_vllm.sh # one-command local teacher server (vLLM + Docker)
 configs/default.yaml  # generation + sampling configuration (no secrets)
-examples/sample.jsonl # sample output records
+examples/             # sample output records
 ```
 
 ---
